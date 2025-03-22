@@ -34,17 +34,17 @@ std::string LexicalAnalyzer::readVar(const std::string& s, int& pos) {
 	return name;
 }
 
-void LexicalAnalyzer::variablesCheck(std::vector<Term*>& st, std::map<std::string, double>& data) {
+void LexicalAnalyzer::variablesCheck(std::vector<Term*>& st, std::map<std::string, Polynom>& data) {
 	for (int i = 0; i < st.size(); i++) {
 		Variable* pv = dynamic_cast<Variable*>(st[i]);
 		if (pv != nullptr) {
 			std::string name = pv->getName();
-			Function<double>* pf = nullptr;
-			if (i != st.size() - 1) pf = dynamic_cast<Function<double>*>(st[i + 1]);
+			Function<Polynom>* pf = nullptr;
+			if (i != st.size() - 1) pf = dynamic_cast<Function<Polynom>*>(st[i + 1]);
 			if (i == st.size() - 1 || pf == nullptr || !pf->is_assign()) {
 				if (data.count(name) == 1) {
 					delete(st[i]);
-					st[i] = new Number<>(data[name]);
+					st[i] = new Polynomial(data[name]);
 				}
 				else throw "you're trying to use undefine variable";
 			}
@@ -52,7 +52,7 @@ void LexicalAnalyzer::variablesCheck(std::vector<Term*>& st, std::map<std::strin
 	}
 }
 
-std::vector<Term*> LexicalAnalyzer::analysis(const std::string& s, std::map<std::string, double>& data) {
+std::vector<Term*> LexicalAnalyzer::analysis(const std::string& s, std::map<std::string, Polynom>& data) {
 
 	std::vector<Term*> st;
 
@@ -66,7 +66,7 @@ std::vector<Term*> LexicalAnalyzer::analysis(const std::string& s, std::map<std:
 		else if (s[i] >= '0' && s[i] <= '9') {
 			
 			double num = this->readNum(s, i);
-			st.push_back(new Number<>(num));
+			st.push_back(new Polynomial(Polynom(std::vector<Monom>(1, Monom(num)))));
 
 			i--;
 		}
@@ -79,7 +79,7 @@ std::vector<Term*> LexicalAnalyzer::analysis(const std::string& s, std::map<std:
 			i--;
 		}
 
-		else if (s[i] == '+') st.push_back(new Function<double, double>(std::plus<double>(), 1));
+		else if (s[i] == '+') st.push_back(new Function<Polynom, Polynom>(std::plus<Polynom>(), 1));
 		else if (s[i] == '-') {
 			Variable* pv = nullptr;
 			Number<>* pn = nullptr;
@@ -87,12 +87,25 @@ std::vector<Term*> LexicalAnalyzer::analysis(const std::string& s, std::map<std:
 				pv = dynamic_cast<Variable*>(st[st.size()-1]);
 				pn = dynamic_cast<Number<>*>(st[st.size() - 1]);
 			}
-			if (pv != nullptr || pn != nullptr) st.push_back(new Function<double, double>(std::minus<double>(), 1));
-			else st.push_back(new Function<double>(std::negate<double>(), -1));
+			if (pv != nullptr || pn != nullptr) st.push_back(new Function<Polynom, Polynom>(std::minus<Polynom>(), 1));
+			else st.push_back(new Function<Polynom>(std::negate<Polynom>(), -1));
 		} 
-		else if (s[i] == '*') st.push_back(new Function<double, double>(std::multiplies<double>(), 0));
-		else if (s[i] == '/') st.push_back(new Function<double, double>(std::divides<double>(), 0));
-		else if (s[i] == '=')st.push_back(new Function<double>(nullptr, 2));
+		else if (s[i] == '*') st.push_back(new Function<Polynom, Polynom>(std::multiplies<Polynom>(), 0));
+		else if (s[i] == '=') {
+			st.push_back(new Function<Polynom>(nullptr, 2));
+			i++;
+			while (s[i] == ' ') i++;
+			int contr = i;
+			translator t;
+			Polynomial* pp;
+			try {
+				pp = new Polynomial(t.translate(s, i));
+				st.push_back(pp);
+			}catch (const char* s) {
+				i = contr - 1;
+			}
+			
+		}
 
 		else throw "your expression isn't correct";
 

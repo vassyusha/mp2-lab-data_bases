@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include "polynoms.h"
 /// <summary>
 /// полиморфный класс, который будет отвечать за сущности, участвующие в вычислениях
 /// </summary>
@@ -46,20 +47,15 @@ public:
 };
 
 
-template <class T, class... Args>
+template <class T = Polynom, class... Args>
 class Function : public Term {
 private:
 
-	std::function<double(T, Args...)> func;
+	std::function<T(T, Args...)> func;
 	int pr = 0;
 
 public:
-	Function(const std::function<double(T,Args...)>& func, int pr) : Term(), func(func), pr(pr){}
-
-	bool is_div() {
-		if (this->func.target<std::divides<double>>()) return true;
-		else return false;
-	}
+	Function(const std::function<T(T,Args...)>& func, int pr) : Term(), func(func), pr(pr){}
 
 	bool is_assign() {
 		if (this->func == nullptr) return true;
@@ -68,14 +64,25 @@ public:
 
 	//T f(T a, Args... args);
 	
-	double f(double a) { return this->func(a); }
+	T f(const T& a) const{ return this->func(a); }
 
-	double f(double a, double b) { 
-		double ans = this->func(a, b);
+	T f(const T& a, const T& b) const{ 
+		T ans = this->func(a, b);
 		return ans;
 	}
 
 	int getPriority() { return this->pr; }
+};
+
+class Polynomial : public Term {
+private:
+	Polynom p;
+
+public:
+	Polynomial(const Polynom& p): p(p){}
+
+	Polynom getPolynom() const { return this->p; }
+	Polynom& getPolynom() { return this->p; }
 };
 
 

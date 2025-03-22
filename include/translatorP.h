@@ -1,20 +1,20 @@
 #pragma once
 #include "polynoms.h"
-#include "term.h"
+#include "termP.h"
 #include <string>
 
 class translator {
-	Polynom P;
+
 public:
-	translator(const std::string& str){
-		if (syntaxAnalyzer(lexicalAnalyzer(str))) {
-			P = createPolynom(lexicalAnalyzer(str));
+	Polynom translate(const std::string& str, int& pos){
+		std::vector<Terma*> is = lexicalAnalyzer(str, pos);
+		if (syntaxAnalyzer(is)) {
+			Polynom p = createPolynom(is);
+			return p;
 		}
 		else throw "Incorrect expresion\n";
 	}
-	Polynom getPolynom() {
-		return P;
-	}
+
 	std::pair<double,int> readD(const std::string& str,int i) {
 		int j = i + 1;
 		std::string num = "";
@@ -44,36 +44,37 @@ public:
 		if (num == "") throw "Incorrect power of variable\n";
 		else return {stoi(num),j};
 	}
-	std::vector<Term*> lexicalAnalyzer(const std::string& str) {
-		std::vector<Term*> v;
-		int i = 0;
-		while (i < str.size()) {
+	std::vector<Terma*> lexicalAnalyzer(const std::string& str, int& pos) {
+		std::vector<Terma*> v;
+		int i = pos;
+		while (i < str.size() && str[i] != ' ') {
 			if ((str[i] == '+') || (str[i] == '-')) {
 				v.push_back(new Sign(str[i]));
 				i++;
 				continue;
 			}
-			if (str[i] == '^') {
+			else if (str[i] == '^') {
 				v.push_back(new Power(readI(str,i).first));
 				i= readI(str, i).second;
 				continue;
 			}
-			if ('0' <= str[i] && str[i] <= '9') {
+			else if ('0' <= str[i] && str[i] <= '9') {
 				v.push_back(new Coef(readD(str, i).first)); //коэффицент пока что без учёта знака 
 				i = readD(str, i).second;
 				continue;
 			}
-			if (str[i] == 'x' || str[i] == 'y' || str[i] == 'z') {
-				v.push_back(new Variable(str[i]));
+			else if (str[i] == 'x' || str[i] == 'y' || str[i] == 'z') {
+				v.push_back(new Var(str[i]));
 				i++;
 				continue;
 			}
 			else throw "Incorrect symbol\n";
 		}
 		v.push_back(new End());
+		pos = i;
 		return v;
 	}
-	bool syntaxAnalyzer(const std::vector<Term*>& terms) {
+	bool syntaxAnalyzer(const std::vector<Terma*>& terms) {
 		int i = 0;
 		int flag = 0;
 		int count = 0;
@@ -98,7 +99,7 @@ public:
 					break;
 				}
 			case 2:
-				if (dynamic_cast<Variable*>(terms[i]) && dynamic_cast<Variable*>(terms[i])->getName()=='x') {
+				if (dynamic_cast<Var*>(terms[i]) && dynamic_cast<Var*>(terms[i])->getName()=='x') {
 					flag = 4;
 					count++;
 					break;
@@ -121,12 +122,12 @@ public:
 					break;
 				}
 			case 5:
-				if (dynamic_cast<Variable*>(terms[i]) && count == 1) {
+				if (dynamic_cast<Var*>(terms[i]) && count == 1) {
 					flag = 4;
 					count++;
 					break;
 				}
-				if (dynamic_cast<Variable*>(terms[i]) && count == 2) {
+				if (dynamic_cast<Var*>(terms[i]) && count == 2) {
 					flag = 4;
 					count++;
 					break;
@@ -151,7 +152,7 @@ public:
 		}
 		return 1;
 	}
-	Polynom createPolynom(const std::vector<Term*>& terms) {
+	Polynom createPolynom(const std::vector<Terma*>& terms) {
 		int i = 0;
 		int flag = 0;
 		Polynom P;

@@ -72,11 +72,12 @@ public:
 		z = other.z;
 		return *this;
 	}
-	Monom& operator-() {
-		coef = -coef;
-		return *this;
+	Monom operator-() const{
+		Monom m(*this);
+		m.coef = -m.coef;
+		return m;
 	}
-	Monom operator*=(double c) {
+	Monom & operator*=(double c) {
 		coef *= c;
 		return *this;
 	}
@@ -199,23 +200,17 @@ public:
 		}
 		return *this;
 	}
-	Polynom operator+(const Polynom& other) {
+	Polynom operator+(const Polynom& other)const {
 		Polynom P(*this);
 		P += other;
 		return P;
 	}
-	Polynom operator-() { //унарный минус к полиному
+	Polynom operator-() const{ //унарный минус к полиному
 		Polynom P(*this);
-		cyclicList<Monom>::Node* curr = P.data.HEAD();
-		curr->value = -(curr->value);
-		curr = curr->next;
-		while (curr != P.data.HEAD()) {
-			curr->value = -(curr->value);
-			curr = curr->next;
-		}
+		P *= (-1);
 		return P;
 	}
-	Polynom operator-(const Polynom& other) {
+	Polynom operator-(const Polynom& other) const{
 		Polynom P(*this);
 		Polynom tmp(other);
 		P += -tmp;
@@ -265,6 +260,12 @@ public:
 		}
 		return *this;
 	}
+	Polynom operator*(const Polynom& other) const {
+		Polynom P(*this);
+		P *= other;
+		return P;
+	}
+	
 	void print() const {
 		data.print();
 	}

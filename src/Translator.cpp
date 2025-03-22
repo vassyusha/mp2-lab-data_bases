@@ -5,7 +5,7 @@ void Translator::destr(std::vector<Term*>& v) {
 }
 
 
-double Translator::translate(const std::string& s, std::map<std::string, double>& data) {
+Polynom Translator::translate(const std::string& s, std::map<std::string, Polynom>& data) {
 
 	LexicalAnalyzer lan;
 	std::vector<Term*> v = lan.analysis(s, data);
@@ -23,7 +23,7 @@ double Translator::translate(const std::string& s, std::map<std::string, double>
 
 	Solver sl;
 
-	double result = sl.solve(v, data);
+	Polynom result = sl.solve(v, data);
 	this->destr(v);
 	return result;
 	
