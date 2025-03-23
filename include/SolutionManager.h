@@ -6,7 +6,7 @@
 class SolutionManager
 {
 private:
-	std::map<std::string, double> data;
+	std::map<std::string, Polynom> data;
 
 	std::string inform = "";
 

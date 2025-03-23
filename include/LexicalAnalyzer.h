@@ -7,6 +7,7 @@
 #include <map>
 
 #include "Term.h"
+#include "translatorP.h"
 /// <summary>
 /// класс, отвечающий за лексический предложения 
 /// здесь будет парсер выражения на массив термов
@@ -17,9 +18,9 @@ class LexicalAnalyzer
 private:
 	double readNum(const std::string& s, int& pos);
 	std::string readVar(const std::string& s, int& pos);
-	void variablesCheck(std::vector<Term*>& st, std::map<std::string, double>& data);
+	void variablesCheck(std::vector<Term*>& st, std::map<std::string, Polynom>& data);
 public:
 	
-	std::vector<Term*> analysis(const std::string& s, std::map<std::string, double>&);
+	std::vector<Term*> analysis(const std::string& s, std::map<std::string, Polynom>&);
 };
 

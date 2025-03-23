@@ -1,15 +1,15 @@
 #pragma once
 
-class Term {
+class Terma {
 public:
-	virtual ~Term() {}
+	virtual ~Terma() {}
 };
-class End : public Term { };
-class Variable : public Term {
+class End : public Terma { };
+class Var : public Terma {
 	char name;
 	double data = 3;
 public:
-	Variable(const char & s) : name(s) { }
+	Var(const char & s) : name(s) { }
 	void setData(double& data_) {
 		data = data_;
 	}
@@ -20,20 +20,20 @@ public:
 		return name;
 	}
 };
-class Coef : public Term {
+class Coef : public Terma {
 	double data;
 public:
 	Coef(const double& data_) : data(data_) {};
 	double getData() { return data;}
 	void setData(double& data_) {data = data_;}
 };
-class Power : public Term {
+class Power : public Terma {
 	int data;
 public:
 	Power(const int& data_) : data(data_) {};
 	int getData() { return data; }
 };
-class Sign : public Term {
+class Sign : public Terma {
 	bool flag; // 1 - +, 0 - - 
 public:
 	Sign(const char& s) {
