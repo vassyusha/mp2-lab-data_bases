@@ -118,7 +118,7 @@ struct cyclicList {
 		prev->next = new Node(prev->next, value);
 		return prev->next;
 	}
-	Node* insert(T data) {
+	Node* insert(const T& data) {
 		Node* curr = first;
 		if (first->next != first) {
 			while ((data < curr->next->value) && (curr->next != this->HEAD())) {
@@ -142,7 +142,7 @@ struct cyclicList {
 		}
 		std::cout << std::endl;
 	}
-	friend std::ostream& operator <<(std::ostream& ostr, cyclicList& c) {
+	friend std::ostream& operator <<(std::ostream& ostr, const cyclicList& c) {
 		Node* curr = c.first->next;
 		while (curr != this->HEAD()) {
 			ostr << curr->value;
@@ -166,7 +166,7 @@ struct cyclicList {
 		}
 		return 1;
 	}
-	bool operator!=(const cyclicList<T>& other) {
+	bool operator!=(const cyclicList<T>& other) const {
 		return !(*this == other);
 	}
 	~cyclicList() {
