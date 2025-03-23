@@ -72,12 +72,12 @@ public:
 		z = other.z;
 		return *this;
 	}
-	Monom operator-() const{
+	Monom operator-() {
 		Monom m(*this);
-		m.coef = -m.coef;
+		m.coef = -coef;
 		return m;
 	}
-	Monom & operator*=(double c) {
+	Monom operator*=(double c) {
 		coef *= c;
 		return *this;
 	}
@@ -95,6 +95,11 @@ public:
 	}
 	void print() {
 		std::cout << coef << "x^" << x << "y^" << y << "z^" << z << " ";
+	}
+	friend std::ostream& operator <<(std::ostream& ostr, const Monom& m) {
+		if (m.coef > 0) ostr << "+";
+		ostr << m.coef << "x^" << m.x << "y^" << m.y << "z^" << m.z;
+		return ostr;
 	}
 
 };
@@ -118,28 +123,21 @@ public:
 		}
 		return *this;
 	}
-	bool operator==(const Polynom & other) const{
+	bool operator==(const Polynom& other) const {
 		return (this->data == other.data);
 	}
 	Polynom& operator+=(const Monom& m) {
-		cyclicList<Monom>::Node* curr1 = this->data.HEAD();
-		if (curr1 != nullptr) {
-			bool flag = 0;
-			if (m == curr1->value) {
-				curr1->value += m;
+		cyclicList<Monom>::Node* curr = this->data.HEAD()->next;
+		bool flag = 0;
+		while (curr != this->data.HEAD()) {
+			if (m == curr->value) {
+				curr->value += m;
 				flag = 1;
+				break;
 			}
-			curr1 = curr1->next;
-			while (curr1 != this->data.HEAD()) {
-				if (m == curr1->value) {
-					curr1->value += m;
-					flag = 1;
-				}
-				curr1 = curr1->next;
-			}
-			if (!flag) data.insert(m);
+			curr = curr->next;
 		}
-		else data.insert(m);
+		if (!flag) data.insert(m);
 		return *this;
 	}
 	Polynom operator+(const Monom& m) {
@@ -156,8 +154,8 @@ public:
 
 		}
 		else {
-			if ((first == second) && (first.coef + second.coef != 0)) {
-				*curr3 = P->data.insert_after(Monom(first.coef + second.coef, first.getPowers()), *curr3);
+			if ((first == second)) {
+				if (first.coef + second.coef != 0) *curr3 = P->data.insert_after(Monom(first.coef + second.coef, first.getPowers()), *curr3);
 				*curr1 = (*curr1)->next;
 				*curr2 = (*curr2)->next;
 				return 1; //сдвинулись оба
@@ -170,71 +168,59 @@ public:
 		}
 	}
 	Polynom& operator+=(const Polynom& other) {
-		cyclicList<Monom>::Node* curr1 = this->data.HEAD();
-		cyclicList<Monom>::Node* curr2 = other.data.HEAD();
-		if ((curr1 != nullptr) && (curr2 != nullptr)) {
-			Polynom P;
-			cyclicList<Monom>::Node* curr3 = P.data.HEAD();
-			int flag = change(&curr1, &curr2, &curr3, &P);
-			if (flag == 0) while (change(&curr1, &curr2, &curr3, &P) == 0) {}
-			if (flag == 2) while (change(&curr1, &curr2, &curr3, &P) == 2) {}
-			while (curr1 != this->data.HEAD() && curr2 != other.data.HEAD()) { //пока какой-то не кончился 
-				change(&curr1, &curr2, &curr3, &P);
-			}
-			while (curr1 != this->data.HEAD()) { //оставшийся 
-				P.data.insert_after(curr1->value, curr3);
-				curr1 = curr1->next;
-				curr3 = curr3->next;
-			}
-			while (curr2 != other.data.HEAD()) {
-				P.data.insert_after(curr2->value, curr3);
-				curr2 = curr2->next;
-				curr3 = curr3->next;
-			}
-			*this = P;
-			return *this;
+		cyclicList<Monom>::Node* curr1 = this->data.HEAD()->next;
+		cyclicList<Monom>::Node* curr2 = other.data.HEAD()->next;
+		Polynom P;
+		cyclicList<Monom>::Node* curr3 = P.data.HEAD();
+		while (curr1 != this->data.HEAD() && curr2 != other.data.HEAD()) { //пока какой-то не кончился 
+			change(&curr1, &curr2, &curr3, &P);
 		}
-		if ((curr1 == nullptr) && (curr2 != nullptr)) {
-			*this = other;
-			return *this;
+		while (curr1 != this->data.HEAD()) { //оставшийся 
+			P.data.insert_after(curr1->value, curr3);
+			curr1 = curr1->next;
+			curr3 = curr3->next;
 		}
+		while (curr2 != other.data.HEAD()) {
+			P.data.insert_after(curr2->value, curr3);
+			curr2 = curr2->next;
+			curr3 = curr3->next;
+		}
+		*this = P;
 		return *this;
 	}
-	Polynom operator+(const Polynom& other)const {
+	Polynom operator+(const Polynom& other) {
 		Polynom P(*this);
 		P += other;
 		return P;
 	}
-	Polynom operator-() const{ //унарный минус к полиному
+	Polynom operator-() const {
 		Polynom P(*this);
-		P *= (-1);
+		cyclicList<Monom>::Node* curr = P.data.HEAD()->next;
+		while (curr != P.data.HEAD()) {
+			curr->value = -(curr->value);
+			curr = curr->next;
+		}
 		return P;
 	}
-	Polynom operator-(const Polynom& other) const{
+	Polynom operator-(const Polynom& other) {
 		Polynom P(*this);
-		Polynom tmp(other);
-		P += -tmp;
+		P += -other;
 		return P;
 	}
 	Polynom& operator*=(double c) {
-		cyclicList<Monom>::Node* curr = this->data.HEAD();
-		curr->value *= c;
-		curr = curr->next;
-		while (curr != data.HEAD()) {
+		cyclicList<Monom>::Node* curr = this->data.HEAD()->next;
+		while (curr != this->data.HEAD()) {
 			curr->value *= c;
 			curr = curr->next;
 		}
 		return *this;
 	}
 	Polynom& operator*=(const Monom& M) {
-		cyclicList<Monom>::Node* curr = this->data.HEAD();
-		curr->value *= M;
-		curr = curr->next;
+		cyclicList<Monom>::Node* curr = this->data.HEAD()->next;
 		while (curr != data.HEAD()) {
 			curr->value *= M;
 			curr = curr->next;
 		}
-		//print();
 		return *this;
 	}
 	Polynom operator*(const Monom& M) const {
@@ -243,30 +229,31 @@ public:
 		return P;
 	}
 	Polynom& operator*=(const Polynom& other) {
-		if (this->data.HEAD() != nullptr && other.data.HEAD() != nullptr) {
-			Polynom P;
-			cyclicList<Monom>::Node* curr1 = this->data.HEAD();
-
-			Monom m1(curr1->value);
+		Polynom P;
+		cyclicList<Monom>::Node* curr = this->data.HEAD()->next;
+		while (curr != this->data.HEAD()) {
+			Monom m1(curr->value);
 			P += other * m1;
-			curr1 = curr1->next;
-			while (curr1 != this->data.HEAD()) {
-				Monom m1(curr1->value);
-				P += other * m1;
-
-				curr1 = curr1->next;
-			}
-			*this = P;
+			curr = curr->next;
 		}
+		*this = P;
 		return *this;
 	}
-	Polynom operator*(const Polynom& other) const {
+	Polynom operator*(const Polynom& other) {
 		Polynom P(*this);
 		P *= other;
 		return P;
 	}
-	
 	void print() const {
 		data.print();
+	}
+	friend std::ostream& operator <<(std::ostream& ostr, const Polynom& c) {
+		cyclicList<Monom>::Node* curr = c.data.HEAD()->next;
+		while (curr != c.data.HEAD()) {
+			ostr << curr->value;
+			curr = curr->next;
+		}
+		ostr << std::endl;
+		return ostr;
 	}
 };
