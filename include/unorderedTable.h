@@ -4,10 +4,12 @@
 
 template<class TKey, class TValue>
 class unorderedTable {
+public:
+	class iterator;
 private:
 	std::vector<std::pair<TKey, TValue>> data;
 
-	void swap(const iterator& first, const iterator& second) {
+	void swap(iterator first, iterator second) {
 		std::pair<TKey, TValue> temp = *(first);
 		*(first) = *(second);
 		*(second) = temp;
@@ -15,7 +17,7 @@ private:
 
 public:
 
-	size_t size() { return this->data->size(); }
+	size_t size() { return this->data.size(); }
 
 	class iterator {
 	private:
@@ -24,8 +26,8 @@ public:
 	public:
 		iterator(std::pair<TKey, TValue>* it): it(it){}
 
-		std::vector<std::pair<TKey, TValue>>& operator*() { return *(this->it); }
-		std::vector<std::pair<TKey, TValue>> operator*() const { return *(this->it); }
+		std::pair<TKey, TValue>& operator*() { return *(this->it); }
+		std::pair<TKey, TValue> operator*() const { return *(this->it); }
 
 		iterator& operator++() {
 			this->it++;
@@ -41,8 +43,8 @@ public:
 		bool operator==(const iterator& other) const { return !((*this) != other); }
 		bool operator>(const iterator& other) const { return (this->it > other.it); }
 		bool operator<(const iterator& other) const { return (this->it < other.it); }
-		bool operator>=(const iterator& other) const { return !((*this) < iter); }
-		bool operator<=(const iterator& other) const { return !((*this) > iter); }
+		bool operator>=(const iterator& other) const { return !((*this) < other); }
+		bool operator<=(const iterator& other) const { return !((*this) > other); }
 
 		iterator& operator--() {
 			this->it--;
@@ -59,7 +61,7 @@ public:
 			return *this;
 		}
 		iterator operator+(int n) const {
-			iterator i(this->it + n, this->arr);
+			iterator i(this->it + n);
 			return i;
 		}
 
@@ -68,13 +70,13 @@ public:
 			return *this;
 		}
 		iterator operator-(int n) const {
-			iterator i(this->it - n, this->arr);
+			iterator i(this->it - n);
 			return i;
 		}
 
 	};
 
-	iterator begin() { return this->data; }
+	iterator begin() { return iterator(this->data.data()); }
 	iterator end() { return this->begin() + this->size(); }
 
 	iterator insert(const TKey& key, const TValue& value) {
@@ -91,19 +93,27 @@ public:
 	}
 
 	iterator erase(const iterator& it) {
-		if (it >= this->end()) throw "you are trying to erase an element outside the table";
+		if (it >= this->end()) throw "you are trying to erase a non-existant element";
 		swap(it, this->end() - 1);
 		this->data.pop_back();
 		return it;
 	}
 	iterator erase(const TKey& key) {
 		iterator it = this->find(key);
-		if (it != this->end()) return this->erase(it);
-		return it;
+		return this->erase(it);
 	}
 
-	TValue& operator[](const TKey& key) { return (*(this->find(key)).second; }
-	TValue operator[](const TKey& key) const { return (*(this->find(key)).second; }
+	TValue& operator[](const TKey& key) {
+		if (this->find(key) == this->end()) {
+			this->data.push_back(std::pair<TKey, TValue>(key, TValue()));
+			return (*(this->end() - 1)).second;
+		}
+		return (*(this->find(key))).second; 
+	}
+	TValue operator[](const TKey& key) const {
+		if (this->find(key) == this->end()) throw "an element with such key doesnt exist";
+		return (*(this->find(key))).second;
+	}
 
 	friend std::ostream& operator <<(std::ostream& ostr, unorderedTable& table) {
 		ostr << "|   KEY    |    VALUE   |\n";
