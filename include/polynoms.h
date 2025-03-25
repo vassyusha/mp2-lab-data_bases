@@ -188,7 +188,7 @@ public:
 		*this = P;
 		return *this;
 	}
-	Polynom operator+(const Polynom& other) {
+	Polynom operator+(const Polynom& other)const {
 		Polynom P(*this);
 		P += other;
 		return P;
@@ -206,7 +206,7 @@ public:
 		P *= -1;
 		return P;
 	}
-	Polynom operator-(const Polynom& other) {
+	Polynom operator-(const Polynom& other) const {
 		Polynom P(*this);
 		P += -other;
 		return P;
@@ -235,7 +235,7 @@ public:
 		*this = P;
 		return *this;
 	}
-	Polynom operator*(const Polynom& other) {
+	Polynom operator*(const Polynom& other) const{
 		Polynom P(*this);
 		P *= other;
 		return P;
