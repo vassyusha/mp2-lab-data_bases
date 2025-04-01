@@ -13,12 +13,11 @@ public:
 
 protected:
 	struct Node {
-		int key;
 		Node* left, * right, * parent;
 		std::pair<TKey, TValue> value;
 		Color color; // RED or BLACK
 
-		Node(int key, Node* l, Node* r, Node p, std::pair<TKey, TValue> value, Color color) : key(key), left(l), right(r), parent(p), value(value), color(color) {}
+		Node(Node* l, Node* r, Node p, std::pair<TKey, TValue> value, Color color) : key(key), left(l), right(r), parent(p), value(value), color(color) {}
 	};
 
 private:
@@ -139,11 +138,6 @@ public:
 			return i;
 		}
 
-		iterator& operator--();
-
-
-		iterator operator--(int);
-
 	};
 
 	iterator begin() {
@@ -161,7 +155,14 @@ public:
 
 	iterator insert(const TKey& key, const TValue& value);
 
-	iterator find(const TKey& key);
+	iterator find(const TKey& key) {
+		Node* curr = this->root;
+		while (curr && curr->value.first != key) {
+			if (curr->value.first < key) curr = curr->right;
+			if (curr->value.first > key) curr = curr->left;
+		}
+		return iterator(curr);
+	}
 
 	iterator erase(const iterator& it);
 	iterator erase(const TKey& key);
