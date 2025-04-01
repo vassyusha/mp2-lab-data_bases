@@ -2,8 +2,6 @@
 #include <vector>
 #include <string>
 
-
-
 template<class TKey, class TValue>
 class RBTree {
 public:
@@ -20,7 +18,7 @@ protected:
 		std::pair<TKey, TValue> value;
 		Color color; // RED or BLACK
 
-		Node(int key, Node* l, Node* r, Node p, std::pair<TKey, TValue> value, Color color): key(key), left(l), right(r), parent(p), value(value), color(color){}
+		Node(int key, Node* l, Node* r, Node p, std::pair<TKey, TValue> value, Color color) : key(key), left(l), right(r), parent(p), value(value), color(color) {}
 	};
 
 private:
@@ -38,7 +36,7 @@ private:
 
 		//B - правое поддерево x
 		x->right = y->left;
-		if(y->left) y->left->parent = x;
+		if (y->left) y->left->parent = x;
 
 		//y - новый корень поддерева
 		y->parent = x->parent;
@@ -109,7 +107,7 @@ public:
 		Node* it = nullptr;
 
 	public:
-		iterator(Node* it): it(it){}
+		iterator(Node* it) : it(it) {}
 
 		Node& operator*() { return *(this->it); }
 		Node operator*() const { return *(this->it); }
@@ -148,12 +146,12 @@ public:
 
 	};
 
-	iterator begin() { 
+	iterator begin() {
 		Node* ll = this->root;
 		while (ll->left) ll = ll->left;
 		return iterator(ll);
 	}
-	iterator end() { 
+	iterator end() {
 		Node* rr = this->root;
 		while (rr->right) rr = rr->right;
 		rr = rr->right;
@@ -172,3 +170,4 @@ public:
 	TValue operator[](const TKey& key) const;
 
 	friend std::ostream& operator <<(std::ostream& ostr, RBTree& tree);
+};
