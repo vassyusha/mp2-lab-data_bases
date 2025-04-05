@@ -99,6 +99,55 @@ private:
 		return nullptr;
 	}
 
+	Node* insert(const TKey& key, const TValue& value, Node* curr) {
+		if(!curr) curr = new Node(nullptr, nullptr, nullptr, std::pair<TKey, TValue>(key, value), Color::RED);
+		else if (curr->value.first < key) {
+			if (curr->right) return this->insert(key, value, curr->right);
+			curr->right = new Node(nullptr, nullptr, curr, std::pair<TKey, TValue>(key, value), Color::RED);
+		}
+		else {
+			if (curr->value.first == key) throw "the element with this key already exists";
+			if (curr->left) return this->insert(key, value, curr->left);
+			curr->left = new Node(nullptr, nullptr, curr, std::pair<TKey, TValue>(key, value), Color::RED);
+		}
+		return curr;
+	}
+
+	void balanceInsert(Node* x) {
+		if (!(x->parent)) {
+			x->color = Color::BLACK;
+			return;
+		}
+		if (this->P(x)->color == Color::BLACK) return;
+		if (this->U(x)->color == Color::RED) {
+			this->P(x)->color = Color::BLACK;
+			this->U(x)->color = Color::BLACK;
+			this->G(x)->color = Color::RED;
+			balanceInsert(this->G(x));
+			return;
+		}
+		if (this->P(x) == this->G(x)->left) {
+			if (x == this->P(x)->right) {
+				x = this->P(x);
+				this->smallLeftRotate(x);
+			}
+			this->G(x)->color = Color::RED;
+			this->P(x)->color = Color::BLACK;
+			this->smallRightRotate(this->G(x));
+			return;
+		}
+		if (this->P(x) == this->G(x)->right) {
+			if (x == this->P(x)->left) {
+				x = this->P(x);
+				this->smallRightRotate(x);
+			}
+			this->G(x)->color = Color::RED;
+			this->P(x)->color = Color::BLACK;
+			this->smallLeftRotate(this->G(x));
+			return;
+		}
+	}
+
 public:
 
 	class iterator {
@@ -114,7 +163,6 @@ public:
 		bool operator!=(const iterator& other) const { return (this->it != other.it); }
 		bool operator==(const iterator& other) const { return !((*this) != other); }
 
-		//тут уже все переделывать надо, это анрил
 		iterator& operator++() {
 			if (this->it->right) {
 				this->it = this->it->right;
@@ -153,7 +201,11 @@ public:
 	}
 
 
-	iterator insert(const TKey& key, const TValue& value);
+	iterator insert(const TKey& key, const TValue& value) {
+		Node* x = this->insert(key, value, this->root);
+		this->balanceInsert(x);
+		return iterator(x);
+	}
 
 	iterator find(const TKey& key) {
 		Node* curr = this->root;
@@ -164,7 +216,6 @@ public:
 		return iterator(curr);
 	}
 
-	iterator erase(const iterator& it);
 	iterator erase(const TKey& key);
 
 	TValue& operator[](const TKey& key);
