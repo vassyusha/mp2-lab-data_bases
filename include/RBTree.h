@@ -22,12 +22,12 @@ protected:
 
 private:
 
-	Node* root;
+	Node* root = nullptr;
 
-	void swap(iterator first, iterator second) {
-		std::pair<TKey, TValue> temp = *(first);
-		*(first) = *(second);
-		*(second) = temp;
+	void swap(Node* first, Node* second) {
+		std::pair<TKey, TValue> temp = first->value;
+		first->value = second->value;
+		second->value = temp;
 	}
 
 	void smallLeftRotate(Node* x) {
@@ -100,13 +100,17 @@ private:
 	}
 
 	Node* insert(const TKey& key, const TValue& value, Node* curr) {
-		if(!curr) curr = new Node(nullptr, nullptr, nullptr, std::pair<TKey, TValue>(key, value), Color::RED);
+		if (!curr) {
+			curr = new Node(nullptr, nullptr, nullptr, std::pair<TKey, TValue>(key, value), Color::RED);
+			this->root = curr;
+			return curr;
+		}
+		if (curr->value.first == key) throw "the element with this key already exists";
 		else if (curr->value.first < key) {
 			if (curr->right) return this->insert(key, value, curr->right);
 			curr->right = new Node(nullptr, nullptr, curr, std::pair<TKey, TValue>(key, value), Color::RED);
 		}
 		else {
-			if (curr->value.first == key) throw "the element with this key already exists";
 			if (curr->left) return this->insert(key, value, curr->left);
 			curr->left = new Node(nullptr, nullptr, curr, std::pair<TKey, TValue>(key, value), Color::RED);
 		}
@@ -147,6 +151,56 @@ private:
 			return;
 		}
 	}
+
+	void balanceDelete(Node* x) {
+		if (!(this->P(x)) || x->color == Color::RED) {
+			x->color = Color::BLACK;
+			return;
+		}
+		if (this->S(x)->color == Color::RED) {
+			this->P(x)->color = Color::RED;
+			this->S(x)->color = Color::BLACK;
+			if (x == this->P(x)->left) this->smallLeftRotate(this->P(x));
+			else this->smallRightRotate(this->P(x));
+		}
+		if (this->S(x)->color == Color::BLACK && this->P(x)->color == Color::BLACK && this->S(x)->left->color == Color::BLACK && this->S(x)->right->color == Color::BLACK) {
+			this->S(x)->color = Color::RED;
+			this->balanceDelete(this->P(x));
+			return;
+		}
+		if (this->S(x)->color == Color::BLACK && this->P(x)->color == Color::RED && this->S(x)->left->color == Color::BLACK && this->S(x)->right->color == Color::BLACK) {
+			this->S(x)->color = Color::RED;
+			this->P(x)->color = Color::BLACK;
+			return;
+		}
+		if (x == this->P(x)->left) {
+			if (this->S(x)->left->color == Color::RED && this->S(x)->right->color == Color::BLACK) { 
+				this->S(x)->color = Color::RED;
+				this->S(x)->left->color == Color::BLACK;
+				this->smallRightRotate(this->S(x)); 
+			}
+			this->S(x)->color = this->P(x)->color; 
+			this->P(x)->color = BLACK;
+			this->S(x)->right->color = BLACK;
+			this->smallLeftRotate(this->P(x));
+			return;
+		}
+		else if (x == this->P(x)->right) {
+			if (this->S(x)->right->color == Color::RED && this->S(x)->left->color == Color::BLACK) {
+				this->S(x)->color = Color::RED;
+				this->S(x)->right->color == Color::BLACK;
+				this->smallLeftRotate(this->S(x));
+			}
+			this->S(x)->color = this->P(x)->color;
+			this->P(x)->color = BLACK;
+			this->S(x)->left->color = BLACK;
+			this->smallRightRotate(this->P(x));
+			return;
+		}
+
+	}
+
+	
 
 public:
 
@@ -215,8 +269,34 @@ public:
 		}
 		return iterator(curr);
 	}
+	iterator erase(const TKey& key) {
 
-	iterator erase(const TKey& key);
+		Node* curr = *(this->find(key));
+		if (!curr) throw "you are trying to erase a non-existant element";
+
+		Node* y, x;//y - вершина, с которой свапнем удаляемую; x - потенциальный правый ребенок y
+		if (!curr->left || !curr->right) y = curr; //если y - лист или у нее только 1 ребенок, то ее же и будем удалять
+		else y = *(++(iterator(curr))); //в ином случае находим вершину, на которую будем менять
+
+		if (y->left) x = y->left; //в случае, если единственный лист - левый, то его и будем подтягивать
+		else x = y->right; //в ином случае соответственно подтягиваем правый
+		x->parent = y->parent; //прикрепляем х к новому родителю
+
+		if (y->parent) { //если не корень, то родителю тоже сообщаем о новых детях
+			if (y == y->parent->left) x = y->parent->left;
+			else x = y->parent->right;
+		}
+		else this->root = x;
+
+		if (y != curr) swap(curr, y); //меняем значения удаляемой вершины и той, с которой можем безобидно поменять
+
+		Color yColor = y->color;
+		delete y;
+		if (yColor == Color::BLACK) balanceDelete(x);
+		return iterator(curr);
+
+	}
+
 
 	TValue& operator[](const TKey& key);
 	TValue operator[](const TKey& key) const;
