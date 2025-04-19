@@ -2,24 +2,24 @@
 #include <string>
 #include "unorderedTable.h"
 
-TEST(InsertionIntoAnUnorderedTable, canInsertAnElementIntoAnEmptyTable) {
+TEST(UnorderedTable, canInsertAnElementIntoAnEmptyTable) {
 	unorderedTable<std::string, double> a;
 	ASSERT_NO_THROW(a.insert("zero", 0.0));
 }
 
-TEST(InsertionIntoAnUnorderedTable, cantInsertAnElementWithAlreadyExistedKey) {
+TEST(UnorderedTable, cantInsertAnElementWithAlreadyExistedKey) {
 	unorderedTable<std::string, double> a;
 	a.insert("zero", 0.0);
 	ASSERT_ANY_THROW(a.insert("zero", 1.0));
 }
 
-TEST(InsertionIntoAnUnorderedTable, canInsertAnElementIntoANotEmptyTable) {
+TEST(UnorderedTable, canInsertAnElementIntoANotEmptyTable) {
 	unorderedTable<std::string, double> a;
 	a.insert("zero", 0.0);
 	ASSERT_NO_THROW(a.insert("first", 1.0));
 }
 
-TEST(InsertionIntoAnUnorderedTable, anElementInsertsInTheEnd) {
+TEST(UnorderedTable, anElementInsertsInTheEnd) {
 	unorderedTable<std::string, double> a;
 	a.insert("zero", 0.0);
 	unorderedTable<std::string, double>::iterator it = a.insert("first", 1.0);
@@ -27,7 +27,7 @@ TEST(InsertionIntoAnUnorderedTable, anElementInsertsInTheEnd) {
 }
 
 
-TEST(SearchInAnUnorderedTable, canFindAnExistingElement) {
+TEST(UnorderedTable, canFindAnExistingElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -35,7 +35,7 @@ TEST(SearchInAnUnorderedTable, canFindAnExistingElement) {
 	ASSERT_NO_THROW(a.find(2));
 }
 
-TEST(SearchInAnUnorderedTable, canCorrectlyFindAnExistingElement) {
+TEST(UnorderedTable, canCorrectlyFindAnExistingElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -44,7 +44,7 @@ TEST(SearchInAnUnorderedTable, canCorrectlyFindAnExistingElement) {
 	EXPECT_EQ(*(a.find(2)), exp);
 }
 
-TEST(SearchInAnUnorderedTable, returnsIteratorToTheEndWhenAnElementDoesntExist) {
+TEST(UnorderedTable, returnsIteratorToTheEndWhenAnElementDoesntExist) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -52,7 +52,7 @@ TEST(SearchInAnUnorderedTable, returnsIteratorToTheEndWhenAnElementDoesntExist) 
 	EXPECT_EQ(a.find(5), a.end());
 }
 
-TEST(SearchInAnUnorderedTable, canCorrectlyFindTheFirstElement) {
+TEST(UnorderedTable, canCorrectlyFindTheFirstElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -61,7 +61,7 @@ TEST(SearchInAnUnorderedTable, canCorrectlyFindTheFirstElement) {
 	EXPECT_EQ(*(a.find(0)), exp);
 }
 
-TEST(SearchInAnUnorderedTable, canCorrectlyFindTheLastElement) {
+TEST(UnorderedTable, canCorrectlyFindTheLastElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -71,7 +71,7 @@ TEST(SearchInAnUnorderedTable, canCorrectlyFindTheLastElement) {
 }
 
 
-TEST(ErasureFromAnUnorderedTable, canEraseAnElement) {
+TEST(UnorderedTable, canEraseAnElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -79,14 +79,14 @@ TEST(ErasureFromAnUnorderedTable, canEraseAnElement) {
 	ASSERT_NO_THROW(a.erase(2));
 }
 
-TEST(ErasureFromAnUnorderedTable, canEraseTheOnlyOneElement) {
+TEST(UnorderedTable, canEraseTheOnlyOneElement) {
 	unorderedTable<int, double> a;
 	a.insert(1, 2.0);
 
 	ASSERT_NO_THROW(a.erase(1));
 }
 
-TEST(ErasureFromAnUnorderedTable, cantEraseNonExistantElement) {
+TEST(UnorderedTable, cantEraseNonExistantElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -94,7 +94,7 @@ TEST(ErasureFromAnUnorderedTable, cantEraseNonExistantElement) {
 	ASSERT_ANY_THROW(a.erase(5));
 }
 
-TEST(ErasureFromAnUnorderedTable, returnsIteratorToTheNextElement) {
+TEST(UnorderedTable, returnsIteratorToTheNextElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -105,7 +105,7 @@ TEST(ErasureFromAnUnorderedTable, returnsIteratorToTheNextElement) {
 	EXPECT_EQ(exp, *(a.erase(2)));
 }
 
-TEST(ErasureFromAnUnorderedTable, erasureOfTheLastElementReturnsIteratorToTheEnd) {
+TEST(UnorderedTable, erasureOfTheLastElementReturnsIteratorToTheEnd) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -113,7 +113,8 @@ TEST(ErasureFromAnUnorderedTable, erasureOfTheLastElementReturnsIteratorToTheEnd
 	EXPECT_EQ(a.end(), a.erase(3));
 }
 
-TEST(SquareBracketsOperator, canReturnValueOfAnExistingElement) {
+
+TEST(UnorderedTable, canReturnValueOfAnExistingElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -121,7 +122,7 @@ TEST(SquareBracketsOperator, canReturnValueOfAnExistingElement) {
 	ASSERT_NO_THROW(a[2]);
 }
 
-TEST(SquareBracketsOperator, canReturnCorrectValueOfAnExistingElement) {
+TEST(UnorderedTable, canReturnCorrectValueOfAnExistingElement) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -131,7 +132,7 @@ TEST(SquareBracketsOperator, canReturnCorrectValueOfAnExistingElement) {
 	EXPECT_EQ(exp, a[2]);
 }
 
-TEST(SquareBracketsOperator, canReturnSmthIfTheKeyDoesntExist) {
+TEST(UnorderedTable, canReturnSmthIfTheKeyDoesntExist) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
@@ -139,12 +140,12 @@ TEST(SquareBracketsOperator, canReturnSmthIfTheKeyDoesntExist) {
 	ASSERT_NO_THROW(a[5]);
 }
 
-TEST(SquareBracketsOperator, insertsTheElementWithDefaultValueIfSuchKeyDoesntExist) {
+TEST(UnorderedTable, insertsTheElementWithDefaultValueIfSuchKeyDoesntExist) {
 	unorderedTable<int, double> a;
 	size_t n = 4;
 	for (int i = 0; i < n; i++) a.insert(i, i);
 
 	double p = a[5];
 
-	EXPECT_EQ(0.0, p);
+	EXPECT_EQ(double(), p);
 }
