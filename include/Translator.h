@@ -13,8 +13,7 @@ class Translator
 private:
 	void destr(std::vector<Term*>&);
 public:
-	double translate(const std::string&, std::map<std::string, double>&);
+	Polynom translate(const std::string&, std::map<std::string, Polynom>&);
 
-	
 };
 

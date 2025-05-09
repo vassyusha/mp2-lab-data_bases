@@ -10,6 +10,6 @@
 class Solver
 {
 public:
-	double solve(const std::vector<Term*>&, std::map<std::string, double>&);
+	Polynom solve(const std::vector<Term*>&, std::map<std::string, Polynom>&);
 };
 

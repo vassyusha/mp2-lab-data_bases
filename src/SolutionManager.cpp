@@ -14,6 +14,8 @@ void SolutionManager::manage() {
 	while (true) {
 		std::getline(std::cin, s);
 		try {
+			//tr.translate(s, this->data).print();
+			//std::cout << "\n\n";
 			std::cout << tr.translate(s, this->data) << "\n\n";
 		}
 		catch (const char* s) { std::cout << s << "\n\n"; }
