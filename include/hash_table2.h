@@ -22,7 +22,7 @@ int findSimpleNumber(int a) {
 	}
 }
 template<class Tkey, class Tvalue>
-class hastTable2 {
+class hashTable2 {
 public:class iterator;
 private:
 	class function;
@@ -148,19 +148,19 @@ private:
 		return this->erase(k,hesh);
 
 	}
-	friend std::ostream& operator <<(std::ostream& ostr, hastTable2& table) {
+	friend std::ostream& operator <<(std::ostream& ostr, hashTable2& table) {
 		ostr << "|   KEY    |    VALUE   |\n";
 		for (iterator it = table.begin(); it < table.end(); it++) 
 			if((*it).state == Status::Busy) ostr << "|       " << (*it).key << "       |       " << (*it).value << "      |\n";
 		return ostr;
 	}
 	void repacking() {
-		hastTable2<Tkey, Tvalue> tmp(*this);
+		hashTable2<Tkey, Tvalue> tmp(*this);
 		capacity = capacity * capacity;
 		data = std::vector<Record>(capacity);
 		count = 0;
 		this->h= function(findSimpleNumber(capacity), 4, capacity);
-		for (hastTable2<Tkey, Tvalue>::iterator it = tmp.begin(); it < tmp.end(); it++) {
+		for (hashTable2<Tkey, Tvalue>::iterator it = tmp.begin(); it < tmp.end(); it++) {
 			this->insert((*it).key, (*it).value);
 		}
 	}
@@ -168,7 +168,7 @@ public:
 	int getCollisionsNumber() {
 		return collisionsNumber;
 	}
-	hastTable2(const int &  m) : capacity(m) {
+	hashTable2(const int &  m) : capacity(m) {
 		count = 0;
 		h = function(findSimpleNumber(capacity), 4, capacity);
 		data = std::vector<Record>(capacity);
@@ -218,9 +218,9 @@ public:
 	int getCapacity() { return capacity; }
 	class iterator {
 		Record * it;
-		hastTable2* table; 
+		hashTable2* table; 
 	public:
-		iterator(hastTable2 * table_, Record * data) {
+		iterator(hashTable2 * table_, Record * data) {
 			table = table_;
 			it = data;
 		}
